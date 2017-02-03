@@ -11,7 +11,6 @@ import static com.netflix.ribbon.proxy.annotation.Http.HttpMethod.GET;
  */
 public interface Swarm {
 
-    @Http(method = GET, uri = "/api/v0/swarm/peers")
     RibbonRequest<ByteBuf> swarmPeers();
 
 }
