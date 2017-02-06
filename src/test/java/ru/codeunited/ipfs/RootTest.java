@@ -1,13 +1,22 @@
 package ru.codeunited.ipfs;
 
+import com.netflix.ribbon.RibbonRequest;
+import com.netflix.ribbon.RibbonResponse;
 import io.netty.buffer.ByteBuf;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.functions.Action1;
 import rx.observers.TestSubscriber;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -19,6 +28,8 @@ import static rx.Observable.just;
 
 public class RootTest implements RibbonEnvironment {
 
+    private Logger log = LoggerFactory.getLogger(RootTest.class);
+
     @Test
     public void version() {
         IPFS ipfs = configure();
@@ -27,8 +38,11 @@ public class RootTest implements RibbonEnvironment {
         Map m = json(ver);
 
         assertThat(m, notNullValue());
-        assertThat(m.get("Version"), notNullValue());
-        assertThat(m.get("Version").toString().length(), not(0));
+        String version = String.valueOf(m.get("Version"));
+        log.info("IPFS version {}", version);
+
+        assertThat(version, notNullValue());
+        assertThat(version.toString().length(), not(0));
     }
 
     @Test
@@ -51,9 +65,21 @@ public class RootTest implements RibbonEnvironment {
     }
 
     @Test
-    public void add() {
+    public void add() throws IOException {
         IPFS ipfs = configure();
-        ipfs.add(new ByteArrayInputStream(new byte[1024]));
+        TestSubscriber<ByteBuf> subscriber = new TestSubscriber<>();
+
+        try (final InputStream is = new FileInputStream("/mnt/u110/ethereum/pnet1/CustomGenesis.json")) {
+            RibbonRequest<ByteBuf> request = ipfs.add(is);
+            request.observe()
+                    .doOnError(t -> log.error("* {}", t.getMessage()))
+                    .doOnNext(b -> log.info("** {}", stringify(b)))
+                    .doOnCompleted(() -> log.info("Request complete"))
+                    .subscribe(subscriber);
+
+            log.info(subscriber.awaitValueCount(1, 5, TimeUnit.SECONDS) ? "OnNext happens" : "OnNext NOT received");
+            subscriber.awaitTerminalEvent(7, TimeUnit.SECONDS);
+        }
     }
 
 }

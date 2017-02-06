@@ -1,11 +1,7 @@
 package ru.codeunited.ipfs;
 
-import com.fasterxml.jackson.databind.type.MapType;
 import com.google.gson.Gson;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.config.ConfigurationManager;
 import com.netflix.ribbon.ClientOptions;
-import com.netflix.ribbon.Ribbon;
 import io.netty.buffer.ByteBuf;
 
 import java.nio.charset.Charset;
@@ -21,7 +17,7 @@ public interface RibbonEnvironment {
     default IPFS configure() {
         Gson gson = new Gson();
 
-        IPFS ipfs = new IPFSImpl(ClientOptions.create()
+        IPFS ipfs = new IPFSRibbon(ClientOptions.create()
                 .withMaxAutoRetriesNextServer(3)
                 .withConfigurationBasedServerList("localhost:5001"));
 
@@ -34,11 +30,11 @@ public interface RibbonEnvironment {
         return new String(bytes, Charset.forName("UTF-8"));
     }
 
-    default Map json(ByteBuf buf) {
+    default Map<String, Object> json(ByteBuf buf) {
         return json(stringify(buf));
     }
 
-    default Map json(String s) {
+    default Map<String, Object> json(String s) {
         return gson.fromJson(s, Map.class);
     }
 
