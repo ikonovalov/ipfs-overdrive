@@ -3,11 +3,12 @@ package ru.codeunited.ipfs;
 import com.netflix.ribbon.ClientOptions;
 import com.netflix.ribbon.Ribbon;
 import com.netflix.ribbon.RibbonRequest;
-import com.netflix.ribbon.http.HttpRequestBuilder;
 import com.netflix.ribbon.http.HttpRequestTemplate;
 import com.netflix.ribbon.http.HttpResourceGroup;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.observables.StringObservable;
 
@@ -21,6 +22,8 @@ import java.util.function.Supplier;
  * Created by ikonovalov on 03/02/17.
  */
 public class IPFSRibbon implements IPFS {
+
+    private final Logger log = LoggerFactory.getLogger(IPFSRibbon.class);
 
     private final HttpResourceGroup httpResourceGroup;
 
@@ -47,20 +50,14 @@ public class IPFSRibbon implements IPFS {
         templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
 
         // roots methods
-        rootVersion = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/version")
-                .build();
-        rootCommands = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/commands")
-                .build();
-        rootCat = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/cat?arg={multihash}")
-                .build();
-        rootAdd = templateBuilder.withMethod("POST").withUriTemplate("/api/v0/add")
-                .build();
+        rootVersion = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/version").build();
+        rootCommands = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/commands").build();
+        rootCat = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/cat?arg={multihash}").build();
+        rootAdd = templateBuilder.withMethod("POST").withUriTemplate("/api/v0/add").build();
 
         // refs methods
-        rootRefs = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs?arg={multihash}")
-                .build();
-        rootRefsLocal = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs/local")
-                .build();
+        rootRefs = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs?arg={multihash}").build();
+        rootRefsLocal = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs/local").build();
     }
 
     @Override
@@ -80,28 +77,27 @@ public class IPFSRibbon implements IPFS {
 
     @Override
     public RibbonRequest<ByteBuf> add(InputStream stream) throws IOException {
-        final ByteBuf reusableBuffer = Unpooled.buffer(2048);
         final String boundary = boundarySupplier.get();
+        //final SoftReference<ByteBuf> wBuffer = new SoftReference<>(Unpooled.buffer(512));
         return rootAdd
                 .requestBuilder()
                 .withHeader("Content-Type", "multipart/form-data; boundary=" + boundary)
                 .withContent(
-                        StringObservable
-                                .from(stream, 1024)
-                                .map(buffer ->
-                                        reusableBuffer.clear()
-                                                .writeBytes(("--" + boundary + "\r\n").getBytes())
-                                                .writeBytes("Content-Disposition: file; name=\"123\";\r\n".getBytes())
-                                                .writeBytes("Content-Type: application/octet-stream\r\n".getBytes())
-                                                .writeBytes("Content-Transfer-Encoding: binary\r\n\r\n".getBytes())
-                                                .writeBytes(buffer)
-                                                .writeBytes("\r\n".getBytes())
-                                                .writeBytes(("--" + boundary + "--\r\n").getBytes())
-                                )
-                                .doOnCompleted(() -> System.out.println("***"))
+                        Observable.concat(
+                                Observable.just(Unpooled.buffer(128)
+                                        .writeBytes(("--" + boundary + "\r\n").getBytes())
+                                        .writeBytes("Content-Disposition: file;\r\n".getBytes())
+                                        .writeBytes("Content-Type: application/octet-stream\r\n".getBytes())
+                                        .writeBytes("Content-Transfer-Encoding: binary\r\n\r\n".getBytes())),
 
-                )
-                .build();
+                                StringObservable.from(stream, 256)
+                                        .map(buffer -> Unpooled.buffer(256).writeBytes(buffer))
+                                        .doOnError(throwable -> log.error("Data chunk handling error", throwable))
+                                        .doOnCompleted(() -> log.info("Incoming stream exhausted")),
+
+                                Observable.just(Unpooled.buffer(64).writeBytes(("\r\n--" + boundary + "--\r\n").getBytes()))
+                        )
+                ).build();
     }
 
     @Override
