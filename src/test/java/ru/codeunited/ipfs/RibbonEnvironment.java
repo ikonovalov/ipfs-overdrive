@@ -14,14 +14,16 @@ public interface RibbonEnvironment {
 
     Gson gson = new Gson();
 
-    default IPFS configure() {
-        Gson gson = new Gson();
-
+    default IPFS configure(int port) {
         IPFS ipfs = new IPFSRibbon(ClientOptions.create()
                 .withMaxAutoRetriesNextServer(3)
-                .withConfigurationBasedServerList("localhost:5001"));
+                .withConfigurationBasedServerList("localhost:" + port));
 
         return ipfs;
+    }
+
+    default IPFS configure() {
+        return configure(5001);
     }
 
     default String stringify(ByteBuf byteBuf) {

@@ -1,22 +1,18 @@
 package ru.codeunited.ipfs;
 
 import com.netflix.ribbon.RibbonRequest;
-import com.netflix.ribbon.RibbonResponse;
 import io.netty.buffer.ByteBuf;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.functions.Action1;
 import rx.observers.TestSubscriber;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -53,6 +49,9 @@ public class RootTest implements RibbonEnvironment {
         ipfs.commands().observe().flatMap(buf -> just(json(buf))).subscribe(mapTestSubscriber);
         mapTestSubscriber.awaitTerminalEventAndUnsubscribeOnTimeout(5, TimeUnit.SECONDS);
         mapTestSubscriber.getOnNextEvents().stream().findFirst().ifPresent(rootIsIPFS);
+        mapTestSubscriber.getOnErrorEvents().stream().findFirst().ifPresent(throwable -> {
+            throw new RuntimeException("Error events detected. ", throwable);
+        });
     }
 
     @Test
@@ -66,7 +65,7 @@ public class RootTest implements RibbonEnvironment {
 
     @Test
     public void add() throws IOException {
-        IPFS ipfs = configure();
+        IPFS ipfs = configure(5001);
         TestSubscriber<ByteBuf> subscriber = new TestSubscriber<>();
 
         try (final InputStream is = new FileInputStream("/mnt/u110/ethereum/pnet1/CustomGenesis.json")) {
