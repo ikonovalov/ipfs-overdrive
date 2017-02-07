@@ -16,11 +16,15 @@ public interface IPFS {
 
     RibbonRequest<ByteBuf> add(InputStream stream) throws IOException;
 
-    RibbonRequest<ByteBuf> get(String multihash);
+    default RibbonRequest<ByteBuf> get(String multihash) {
+        return cat(multihash);
+    }
 
     RibbonRequest<ByteBuf> refs(String multihash);
 
     RibbonRequest<ByteBuf> refsLocal();
+
+    Swarm swarm();
 
 }
 

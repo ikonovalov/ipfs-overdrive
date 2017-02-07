@@ -21,9 +21,9 @@ import java.util.function.Supplier;
  * OSS codeunited.ru
  * Created by ikonovalov on 03/02/17.
  */
-public class IPFSRibbon implements IPFS {
+public class InterPlanetaryFileSystemRibbon implements IPFS {
 
-    private final Logger log = LoggerFactory.getLogger(IPFSRibbon.class);
+    private final Logger log = LoggerFactory.getLogger(InterPlanetaryFileSystemRibbon.class);
 
     private final HttpResourceGroup httpResourceGroup;
 
@@ -45,7 +45,7 @@ public class IPFSRibbon implements IPFS {
     private final HttpRequestTemplate<ByteBuf> rootRefsLocal;
     private final HttpRequestTemplate<ByteBuf> rootAdd;
 
-    IPFSRibbon(ClientOptions options) {
+    InterPlanetaryFileSystemRibbon(ClientOptions options) {
         httpResourceGroup = Ribbon.createHttpResourceGroup("ipfs", options);
         templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
 
@@ -78,7 +78,6 @@ public class IPFSRibbon implements IPFS {
     @Override
     public RibbonRequest<ByteBuf> add(InputStream stream) throws IOException {
         final String boundary = boundarySupplier.get();
-        //final SoftReference<ByteBuf> wBuffer = new SoftReference<>(Unpooled.buffer(512));
         return rootAdd
                 .requestBuilder()
                 .withHeader("Content-Type", "multipart/form-data; boundary=" + boundary)
@@ -113,5 +112,10 @@ public class IPFSRibbon implements IPFS {
     @Override
     public RibbonRequest<ByteBuf> refsLocal() {
         return rootRefsLocal.requestBuilder().build();
+    }
+
+    @Override
+    public Swarm swarm() {
+        return null;
     }
 }

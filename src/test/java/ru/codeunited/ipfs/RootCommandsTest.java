@@ -22,9 +22,9 @@ import static rx.Observable.just;
  * Created by ikonovalov on 03/02/17.
  */
 
-public class RootTest implements RibbonEnvironment {
+public class RootCommandsTest implements RibbonTestEnvironment {
 
-    private Logger log = LoggerFactory.getLogger(RootTest.class);
+    private Logger log = LoggerFactory.getLogger(RootCommandsTest.class);
 
     @Test
     public void version() {
@@ -38,7 +38,7 @@ public class RootTest implements RibbonEnvironment {
         log.info("IPFS version {}", version);
 
         assertThat(version, notNullValue());
-        assertThat(version.toString().length(), not(0));
+        assertThat(version.length(), not(0));
     }
 
     @Test

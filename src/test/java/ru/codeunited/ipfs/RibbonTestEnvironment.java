@@ -10,12 +10,12 @@ import java.util.Map;
 /**
  * Created by ikonovalov on 03/02/17.
  */
-public interface RibbonEnvironment {
+public interface RibbonTestEnvironment {
 
     Gson gson = new Gson();
 
     default IPFS configure(int port) {
-        IPFS ipfs = new IPFSRibbon(ClientOptions.create()
+        IPFS ipfs = new InterPlanetaryFileSystemRibbon(ClientOptions.create()
                 .withMaxAutoRetriesNextServer(3)
                 .withConfigurationBasedServerList("localhost:" + port));
 
