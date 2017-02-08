@@ -92,7 +92,7 @@ public class InterPlanetaryFileSystemRibbon implements IPFS {
                                 StringObservable.from(stream, 256)
                                         .map(buffer -> Unpooled.buffer(256).writeBytes(buffer))
                                         .doOnError(throwable -> log.error("Data chunk handling error", throwable))
-                                        .doOnCompleted(() -> log.info("Incoming stream exhausted")),
+                                        .doOnCompleted(() -> log.debug("Incoming stream exhausted")),
 
                                 Observable.just(Unpooled.buffer(64).writeBytes(("\r\n--" + boundary + "--\r\n").getBytes()))
                         )
