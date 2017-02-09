@@ -1,4 +1,4 @@
-package ru.codeunited.ipfs;
+package ru.codeunited.ipfs.rb;
 
 import com.netflix.ribbon.ClientOptions;
 import com.netflix.ribbon.Ribbon;
@@ -9,6 +9,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.codeunited.ipfs.Block;
+import ru.codeunited.ipfs.Dht;
+import ru.codeunited.ipfs.IPFS;
+import ru.codeunited.ipfs.Swarm;
 import rx.Observable;
 import rx.observables.StringObservable;
 
@@ -21,9 +25,9 @@ import java.util.function.Supplier;
  * OSS codeunited.ru
  * Created by ikonovalov on 03/02/17.
  */
-public class InterPlanetaryFileSystemRibbon implements IPFS {
+public class InterPlanetaryFileSystemRb implements IPFS {
 
-    private final Logger log = LoggerFactory.getLogger(InterPlanetaryFileSystemRibbon.class);
+    private final Logger log = LoggerFactory.getLogger(InterPlanetaryFileSystemRb.class);
 
     private final HttpResourceGroup httpResourceGroup;
 
@@ -45,7 +49,7 @@ public class InterPlanetaryFileSystemRibbon implements IPFS {
     private final HttpRequestTemplate<ByteBuf> rootRefsLocal;
     private final HttpRequestTemplate<ByteBuf> rootAdd;
 
-    InterPlanetaryFileSystemRibbon(ClientOptions options) {
+    InterPlanetaryFileSystemRb(ClientOptions options) {
         httpResourceGroup = Ribbon.createHttpResourceGroup("ipfs", options);
         templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
 
@@ -116,6 +120,16 @@ public class InterPlanetaryFileSystemRibbon implements IPFS {
 
     @Override
     public Swarm swarm() {
+        return null;
+    }
+
+    @Override
+    public Block block() {
+        return null;
+    }
+
+    @Override
+    public Dht dht() {
         return null;
     }
 }

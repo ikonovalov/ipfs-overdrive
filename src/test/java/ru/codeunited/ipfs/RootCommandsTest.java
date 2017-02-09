@@ -101,7 +101,7 @@ public class RootCommandsTest implements RibbonTestEnvironment {
         }
 
         subscriber.awaitValueCount(1, 5, SECONDS);
-        subscriber.getOnNextEvents().stream().findFirst().map(this::json).map(Object::toString).ifPresent(log::info);
+        subscriber.getOnNextEvents().stream().findFirst().map(this::json).map(java.lang.Object::toString).ifPresent(log::info);
         subscriber.awaitTerminalEventAndUnsubscribeOnTimeout(5, SECONDS);
 
     }

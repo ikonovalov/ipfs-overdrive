@@ -3,6 +3,7 @@ package ru.codeunited.ipfs;
 import com.google.gson.Gson;
 import com.netflix.ribbon.ClientOptions;
 import io.netty.buffer.ByteBuf;
+import ru.codeunited.ipfs.rb.FactoryRb;
 
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -15,7 +16,7 @@ public interface RibbonTestEnvironment {
     Gson gson = new Gson();
 
     default IPFS configure(int port) {
-        IPFS ipfs = new InterPlanetaryFileSystemRibbon(ClientOptions.create()
+        IPFS ipfs = FactoryRb.createIpfs(ClientOptions.create()
                 .withMaxAutoRetriesNextServer(3)
                 .withConfigurationBasedServerList("localhost:" + port));
 

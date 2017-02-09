@@ -26,5 +26,9 @@ public interface IPFS {
 
     Swarm swarm();
 
+    Block block();
+
+    Dht dht();
+
 }
 
