@@ -33,6 +33,8 @@ public class InterPlanetaryFileSystemRb implements IPFS {
 
     private final HttpRequestTemplate.Builder<ByteBuf> templateBuilder;
 
+    private final SwarmRb swarm;
+
     private Supplier<String> boundarySupplier = () -> {
         Random r = new Random();
         String allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -42,12 +44,13 @@ public class InterPlanetaryFileSystemRb implements IPFS {
         return b.toString();
     };
 
-    private final HttpRequestTemplate<ByteBuf> rootVersion;
-    private final HttpRequestTemplate<ByteBuf> rootCommands;
-    private final HttpRequestTemplate<ByteBuf> rootCat;
-    private final HttpRequestTemplate<ByteBuf> rootRefs;
-    private final HttpRequestTemplate<ByteBuf> rootRefsLocal;
-    private final HttpRequestTemplate<ByteBuf> rootAdd;
+    private final HttpRequestTemplate<ByteBuf>
+            rootVersion,
+            rootCommands,
+            rootCat,
+            rootRefs,
+            rootRefsLocal,
+            rootAdd;
 
     InterPlanetaryFileSystemRb(ClientOptions options) {
         httpResourceGroup = Ribbon.createHttpResourceGroup("ipfs", options);
@@ -62,6 +65,8 @@ public class InterPlanetaryFileSystemRb implements IPFS {
         // refs methods
         rootRefs = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs?arg={multihash}").build();
         rootRefsLocal = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs/local").build();
+
+        swarm = new SwarmRb(httpResourceGroup);
     }
 
     @Override
@@ -120,7 +125,7 @@ public class InterPlanetaryFileSystemRb implements IPFS {
 
     @Override
     public Swarm swarm() {
-        return null;
+        return swarm;
     }
 
     @Override

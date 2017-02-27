@@ -31,7 +31,7 @@ public class RootCommandsTest implements RibbonTestEnvironment {
 
     @Test
     public void version() {
-        IPFS ipfs = configure();
+        IPFS ipfs = configureLocal();
 
         ByteBuf ver = ipfs.version().execute();
         Map m = json(ver);
@@ -46,7 +46,7 @@ public class RootCommandsTest implements RibbonTestEnvironment {
 
     @Test
     public void commands() throws InterruptedException {
-        IPFS ipfs = configure(IPFS_PORT);
+        IPFS ipfs = configureLocal(IPFS_PORT);
         TestSubscriber<Map> mapTestSubscriber = new TestSubscriber<>();
         Consumer<Map> rootIsIPFS = m -> assertThat(m.get("Name"), is("ipfs"));
         ipfs.commands().observe().flatMap(buf -> just(json(buf))).subscribe(mapTestSubscriber);
@@ -59,7 +59,7 @@ public class RootCommandsTest implements RibbonTestEnvironment {
 
     @Test
     public void cat() {
-        IPFS ipfs = configure(IPFS_PORT);
+        IPFS ipfs = configureLocal(IPFS_PORT);
         ByteBuf buffer = ipfs.cat("QmXcqycvhph5YHWSGKSEFzvcNxAoH54KBUP1zGtTwfSLJS").execute();
         Map<String, Object> file = json(buffer);
         assertThat(file, notNullValue());
@@ -68,7 +68,7 @@ public class RootCommandsTest implements RibbonTestEnvironment {
 
     @Test
     public void add() throws IOException {
-        IPFS ipfs = configure(IPFS_PORT);
+        IPFS ipfs = configureLocal(IPFS_PORT);
         TestSubscriber<ByteBuf> subscriber = new TestSubscriber<>();
 
         try (final InputStream is = new FileInputStream("/mnt/u110/ethereum/pnet1/CustomGenesis.json")) {
@@ -86,7 +86,7 @@ public class RootCommandsTest implements RibbonTestEnvironment {
 
     @Test
     public void addAndCat() throws IOException, InterruptedException {
-        final IPFS ipfs = configure(IPFS_PORT);
+        final IPFS ipfs = configureLocal(IPFS_PORT);
         final CountDownLatch latch = new CountDownLatch(1);
         final TestSubscriber<ByteBuf> subscriber = new TestSubscriber<>();
         try (final InputStream is = new FileInputStream("/mnt/u110/ethereum/pnet1/CustomGenesis.json")) {

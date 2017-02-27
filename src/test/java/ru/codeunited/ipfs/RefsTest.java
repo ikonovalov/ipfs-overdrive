@@ -18,7 +18,7 @@ public class RefsTest implements RibbonTestEnvironment {
 
     @Test
     public void refs() throws InterruptedException {
-        IPFS ipfs = configure();
+        IPFS ipfs = configureLocal();
         TestSubscriber<ByteBuf> subscriber = new TestSubscriber<>();
         String mulHash = "QmXcqycvhph5YHWSGKSEFzvcNxAoH54KBUP1zGtTwfSLJS";
         ipfs.refs(mulHash).observe().doOnCompleted(()-> log.info("Multihash {} refs complete", mulHash)).subscribe(subscriber);

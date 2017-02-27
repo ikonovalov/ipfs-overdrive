@@ -15,7 +15,7 @@ public interface RibbonTestEnvironment {
 
     Gson gson = new Gson();
 
-    default IPFS configure(int port) {
+    default IPFS configureLocal(int port) {
         IPFS ipfs = FactoryRb.createIpfs(ClientOptions.create()
                 .withMaxAutoRetriesNextServer(3)
                 .withConfigurationBasedServerList("localhost:" + port));
@@ -23,8 +23,8 @@ public interface RibbonTestEnvironment {
         return ipfs;
     }
 
-    default IPFS configure() {
-        return configure(5001);
+    default IPFS configureLocal() {
+        return configureLocal(5001);
     }
 
     default String stringify(ByteBuf byteBuf) {
@@ -33,7 +33,7 @@ public interface RibbonTestEnvironment {
         return new String(bytes, Charset.forName("UTF-8"));
     }
 
-    default Map<String, Object> json(ByteBuf buf) {
+    default Map<String, java.lang.Object> json(ByteBuf buf) {
         return json(stringify(buf));
     }
 
