@@ -35,6 +35,8 @@ public class InterPlanetaryFileSystemRb implements IPFS {
 
     private final SwarmRb swarm;
 
+    private static final int BUFFER_FRAME = 32768;
+
     private Supplier<String> boundarySupplier = () -> {
         Random r = new Random();
         String allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -98,8 +100,8 @@ public class InterPlanetaryFileSystemRb implements IPFS {
                                         .writeBytes("Content-Type: application/octet-stream\r\n".getBytes())
                                         .writeBytes("Content-Transfer-Encoding: binary\r\n\r\n".getBytes())),
 
-                                StringObservable.from(stream, 256)
-                                        .map(buffer -> Unpooled.buffer(256).writeBytes(buffer))
+                                StringObservable.from(stream, BUFFER_FRAME)
+                                        .map(buffer -> Unpooled.buffer(BUFFER_FRAME).writeBytes(buffer))
                                         .doOnError(throwable -> log.error("Data chunk handling error", throwable))
                                         .doOnCompleted(() -> log.debug("Incoming stream exhausted")),
 
