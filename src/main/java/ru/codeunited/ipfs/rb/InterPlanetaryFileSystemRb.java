@@ -35,7 +35,7 @@ public class InterPlanetaryFileSystemRb implements IPFS {
 
     private final SwarmRb swarm;
 
-    private static final int BUFFER_FRAME = 32768;
+    private static final int BUFFER_FRAME = 1024 * 256;
 
     private Supplier<String> boundarySupplier = () -> {
         Random r = new Random();
@@ -50,6 +50,7 @@ public class InterPlanetaryFileSystemRb implements IPFS {
             rootVersion,
             rootCommands,
             rootCat,
+            rootGet,
             rootRefs,
             rootRefsLocal,
             rootAdd;
@@ -62,6 +63,7 @@ public class InterPlanetaryFileSystemRb implements IPFS {
         rootVersion = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/version").build();
         rootCommands = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/commands").build();
         rootCat = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/cat?arg={multihash}").build();
+        rootGet = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/get?arg={multihash}").build();
         rootAdd = templateBuilder.withMethod("POST").withUriTemplate("/api/v0/add").build();
 
         // refs methods
@@ -87,6 +89,11 @@ public class InterPlanetaryFileSystemRb implements IPFS {
     }
 
     @Override
+    public RibbonRequest<ByteBuf> get(String multihash) {
+        return rootGet.requestBuilder().withRequestProperty("multihash", multihash).build();
+    }
+
+    @Override
     public RibbonRequest<ByteBuf> add(InputStream stream) throws IOException {
         final String boundary = boundarySupplier.get();
         return rootAdd
@@ -108,11 +115,6 @@ public class InterPlanetaryFileSystemRb implements IPFS {
                                 Observable.just(Unpooled.buffer(64).writeBytes(("\r\n--" + boundary + "--\r\n").getBytes()))
                         )
                 ).build();
-    }
-
-    @Override
-    public RibbonRequest<ByteBuf> get(String multihash) {
-        throw new IllegalStateException("Not implemented");
     }
 
     @Override
