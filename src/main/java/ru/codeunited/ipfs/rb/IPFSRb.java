@@ -25,9 +25,9 @@ import java.util.function.Supplier;
  * OSS codeunited.ru
  * Created by ikonovalov on 03/02/17.
  */
-public class InterPlanetaryFileSystemRb implements IPFS {
+public class IPFSRb implements IPFS {
 
-    private final Logger log = LoggerFactory.getLogger(InterPlanetaryFileSystemRb.class);
+    private final Logger log = LoggerFactory.getLogger(IPFSRb.class);
 
     private final HttpResourceGroup httpResourceGroup;
 
@@ -55,7 +55,7 @@ public class InterPlanetaryFileSystemRb implements IPFS {
             rootRefsLocal,
             rootAdd;
 
-    InterPlanetaryFileSystemRb(ClientOptions options) {
+    IPFSRb(ClientOptions options) {
         httpResourceGroup = Ribbon.createHttpResourceGroup("ipfs", options);
         templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
 

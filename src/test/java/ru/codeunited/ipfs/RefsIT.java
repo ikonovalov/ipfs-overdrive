@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
  * OSS codeunited.ru
  * Created by ikonovalov on 04/02/17.
  */
-public class RefsTest implements RibbonTestEnvironment {
+public class RefsIT implements RibbonTestEnvironment {
 
-    private Logger log = LoggerFactory.getLogger(RefsTest.class);
+    private Logger log = LoggerFactory.getLogger(RefsIT.class);
 
     @Test
     public void refs() throws InterruptedException {

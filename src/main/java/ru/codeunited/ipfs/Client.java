@@ -8,7 +8,7 @@ public class Client {
 
     private final IPFS ipfs;
 
-    Client(IPFS ipfs) {
+    public Client(IPFS ipfs) {
         this.ipfs = ipfs;
     }
 

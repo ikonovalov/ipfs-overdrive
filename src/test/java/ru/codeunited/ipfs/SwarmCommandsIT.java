@@ -11,9 +11,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * OSS codeunited.ru
  * Created by ikonovalov on 14/02/17.
  */
-public class SwarmCommandsTest implements RibbonTestEnvironment {
+public class SwarmCommandsIT implements RibbonTestEnvironment {
 
-    private Logger log = LoggerFactory.getLogger(SwarmCommandsTest.class);
+    private Logger log = LoggerFactory.getLogger(SwarmCommandsIT.class);
 
     @Test
     public void showPeers() {
