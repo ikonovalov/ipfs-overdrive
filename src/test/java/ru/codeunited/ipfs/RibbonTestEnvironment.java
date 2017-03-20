@@ -1,19 +1,12 @@
 package ru.codeunited.ipfs;
 
-import com.google.gson.Gson;
 import com.netflix.ribbon.ClientOptions;
-import io.netty.buffer.ByteBuf;
 import ru.codeunited.ipfs.rb.IPFSFactoryRb;
-
-import java.nio.charset.Charset;
-import java.util.Map;
 
 /**
  * Created by ikonovalov on 03/02/17.
  */
-public interface RibbonTestEnvironment {
-
-    Gson gson = new Gson();
+public interface RibbonTestEnvironment extends JsonSupports{
 
     default IPFS configureLocal(int port) {
         IPFS ipfs = IPFSFactoryRb.createIpfs(ClientOptions.create()
@@ -27,21 +20,5 @@ public interface RibbonTestEnvironment {
         return configureLocal(5001);
     }
 
-    default String stringify(ByteBuf byteBuf) {
-        byte[] bytes = new byte[byteBuf.readableBytes()];
-        byteBuf.readBytes(bytes);
-        return new String(bytes, Charset.forName("UTF-8"));
-    }
 
-    default Map<String, java.lang.Object> json(ByteBuf buf) {
-        return json(stringify(buf));
-    }
-
-    default Map<String, Object> json(String s) {
-        return gson.fromJson(s, Map.class);
-    }
-
-    default String json(Map map) {
-        return gson.toJson(map);
-    }
 }

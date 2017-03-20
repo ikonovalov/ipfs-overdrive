@@ -6,7 +6,7 @@ package ru.codeunited.ipfs;
  */
 public interface ClientFactory<OPTIONS> {
 
-    int DEFAULT_API_SERVER_PORT = 5000;
+    int DEFAULT_API_SERVER_PORT = 5001;
 
     Client createLocal();
 
