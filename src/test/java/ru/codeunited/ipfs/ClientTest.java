@@ -30,7 +30,16 @@ public class ClientTest {
         ClientFactory<ClientOptions> clientFactory = ClientFactoryRb.newInstance();
         Client client = clientFactory.createLocal();
 
-        List<Peer> peers = client.getPeers();
+        List<Peer> peers = client.peers();
         peers.stream().map(Peer::toString).forEach(log::info);
+    }
+
+    @Test
+    public void callNodeId() {
+        ClientFactory<ClientOptions> clientFactory = ClientFactoryRb.newInstance();
+        Client client = clientFactory.createLocal();
+        NodeId id = client.id();
+        assertThat(id).isNotNull();
+        log.info(id.toString());
     }
 }

@@ -46,7 +46,9 @@ public class IPFSRb implements IPFS {
         return b.toString();
     };
 
+    // Available HTTP request remplates
     private final HttpRequestTemplate<ByteBuf>
+            rootId,
             rootVersion,
             rootCommands,
             rootCat,
@@ -60,6 +62,7 @@ public class IPFSRb implements IPFS {
         templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
 
         // roots methods
+        rootId = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/id").build();
         rootVersion = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/version").build();
         rootCommands = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/commands").build();
         rootCat = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/cat?arg={multihash}").build();
@@ -71,6 +74,11 @@ public class IPFSRb implements IPFS {
         rootRefsLocal = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs/local").build();
 
         swarm = new SwarmRb(httpResourceGroup);
+    }
+
+    @Override
+    public RibbonRequest<ByteBuf> id() {
+        return rootId.requestBuilder().build();
     }
 
     @Override

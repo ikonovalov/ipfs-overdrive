@@ -14,6 +14,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -30,6 +33,15 @@ public class RootCommandsIT implements RibbonTestEnvironment {
     private Logger log = LoggerFactory.getLogger(RootCommandsIT.class);
 
     private int IPFS_PORT = 5001;
+
+    @Test
+    public void id() throws InterruptedException, ExecutionException, TimeoutException {
+        IPFS ipfs = configureLocal();
+        Future<ByteBuf> bufFuture = ipfs.id().queue();
+        Map<String, Object> id = json(bufFuture.get(1, SECONDS));
+        assertNotEquals(id, "Incoming IPFS node ID is null");
+        id.entrySet().forEach(entry -> log.info("{} = {}", entry.getKey(), entry.getValue()));
+    }
 
     @Test
     public void version() {

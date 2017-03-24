@@ -8,6 +8,8 @@ import java.io.InputStream;
 
 public interface IPFS {
 
+    RibbonRequest<ByteBuf> id();
+
     RibbonRequest<ByteBuf> version();
 
     RibbonRequest<ByteBuf> commands();
