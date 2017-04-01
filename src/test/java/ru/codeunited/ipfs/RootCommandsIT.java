@@ -37,7 +37,7 @@ public class RootCommandsIT implements RibbonTestEnvironment {
     public static final String MULTHASH = "QmXcqycvhph5YHWSGKSEFzvcNxAoH54KBUP1zGtTwfSLJS";
     private Logger log = LoggerFactory.getLogger(RootCommandsIT.class);
 
-    private int IPFS_PORT = 7000;
+    private int IPFS_PORT = DEFAULT_IPFS_API_PORT;
 
     @Test
     public void id() throws InterruptedException, ExecutionException, TimeoutException {
@@ -50,7 +50,7 @@ public class RootCommandsIT implements RibbonTestEnvironment {
 
     @Test
     public void version() {
-        IPFS ipfs = configureLocal();
+        IPFS ipfs = configureLocal(IPFS_PORT);
 
         ByteBuf ver = ipfs.version().execute();
         Map m = json(ver);

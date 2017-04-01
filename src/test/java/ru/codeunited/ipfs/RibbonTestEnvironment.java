@@ -8,6 +8,9 @@ import ru.codeunited.ipfs.rb.IPFSFactoryRb;
  */
 public interface RibbonTestEnvironment extends JsonSupports {
 
+
+    int DEFAULT_IPFS_API_PORT = 5001;
+
     default IPFS configureLocal(int port) {
         IPFS ipfs = IPFSFactoryRb.createIpfs(ClientOptions.create()
                 .withMaxAutoRetriesNextServer(3)
@@ -18,7 +21,7 @@ public interface RibbonTestEnvironment extends JsonSupports {
     }
 
     default IPFS configureLocal() {
-        return configureLocal(5001);
+        return configureLocal(DEFAULT_IPFS_API_PORT);
     }
 
 
