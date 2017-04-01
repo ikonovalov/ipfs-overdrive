@@ -11,12 +11,14 @@ import ru.codeunited.ipfs.Swarm;
  */
 public class SwarmRb implements Swarm {
 
-    private final HttpRequestTemplate peers;
+    private final HttpRequestTemplate<ByteBuf> peers;
 
     SwarmRb(HttpResourceGroup httpResourceGroup) {
-        HttpRequestTemplate.Builder templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
 
-        peers = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/swarm/peers").build();
+        peers = httpResourceGroup.newTemplateBuilder("ipfs_swarm_peers", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/swarm/peers")
+                .build();
     }
 
     @Override

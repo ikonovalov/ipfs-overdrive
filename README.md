@@ -1,2 +1,2 @@
 # ipfs-overdrive
-IPFS client on Ribbon
+Java IPFS client on Ribbon

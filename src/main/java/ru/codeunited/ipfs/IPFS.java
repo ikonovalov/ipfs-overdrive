@@ -1,6 +1,7 @@
 package ru.codeunited.ipfs;
 
 import com.netflix.ribbon.RibbonRequest;
+import io.ipfs.multihash.Multihash;
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
@@ -18,9 +19,9 @@ public interface IPFS {
 
     RibbonRequest<ByteBuf> add(InputStream stream) throws IOException;
 
-    default RibbonRequest<ByteBuf> get(String multihash) {
-        return cat(multihash);
-    }
+    RibbonRequest<ByteBuf> catSingle(String multihash);
+
+    RibbonRequest<ByteBuf> get(String multihash);
 
     RibbonRequest<ByteBuf> refs(String multihash);
 
@@ -32,5 +33,20 @@ public interface IPFS {
 
     Dht dht();
 
+    default RibbonRequest<ByteBuf> get(Multihash multihash) {
+        return get(multihash.toBase58());
+    }
+
+    default RibbonRequest<ByteBuf> cat(Multihash multihash) {
+        return cat(multihash.toBase58());
+    }
+
+    default RibbonRequest<ByteBuf> catSingle(Multihash multihash) {
+        return catSingle(multihash.toBase58());
+    }
+
+    default RibbonRequest<ByteBuf> refs(Multihash multihash) {
+        return refs(multihash.toBase58());
+    }
 }
 

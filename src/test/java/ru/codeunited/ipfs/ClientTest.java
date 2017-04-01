@@ -31,7 +31,7 @@ public class ClientTest {
         Client client = clientFactory.createLocal();
 
         List<Peer> peers = client.peers();
-        peers.stream().map(Peer::toString).forEach(log::info);
+        peers.stream().limit(10).map(Peer::toString).forEach(log::info);
     }
 
     @Test

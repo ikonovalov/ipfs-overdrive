@@ -1,8 +1,8 @@
 package ru.codeunited.ipfs.rb;
 
 import com.netflix.ribbon.ClientOptions;
-import com.netflix.ribbon.Ribbon;
 import com.netflix.ribbon.RibbonRequest;
+import com.netflix.ribbon.RibbonResourceFactory;
 import com.netflix.ribbon.http.HttpRequestTemplate;
 import com.netflix.ribbon.http.HttpResourceGroup;
 import io.netty.buffer.ByteBuf;
@@ -29,10 +29,6 @@ public class IPFSRb implements IPFS {
 
     private final Logger log = LoggerFactory.getLogger(IPFSRb.class);
 
-    private final HttpResourceGroup httpResourceGroup;
-
-    private final HttpRequestTemplate.Builder<ByteBuf> templateBuilder;
-
     private final SwarmRb swarm;
 
     private static final int BUFFER_FRAME = 1024 * 256;
@@ -52,26 +48,74 @@ public class IPFSRb implements IPFS {
             rootVersion,
             rootCommands,
             rootCat,
+            rootCatAggregated,
             rootGet,
             rootRefs,
             rootRefsLocal,
             rootAdd;
 
     IPFSRb(ClientOptions options) {
-        httpResourceGroup = Ribbon.createHttpResourceGroup("ipfs", options);
-        templateBuilder = httpResourceGroup.newTemplateBuilder("root", ByteBuf.class);
+        RibbonResourceFactory ribbonResourceFactory = IPFSRibbonResourceFactory.normalResourceFactory();
+        RibbonResourceFactory oversizeResourceFactory = IPFSRibbonResourceFactory.oversizeReourceFactory();
+
+        HttpResourceGroup httpResourceGroup = ribbonResourceFactory.createHttpResourceGroup("ipfs", options);
+        HttpResourceGroup oversizeHttpResourceGroup = oversizeResourceFactory.createHttpResourceGroup("ipfs_oversize", options);
 
         // roots methods
-        rootId = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/id").build();
-        rootVersion = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/version").build();
-        rootCommands = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/commands").build();
-        rootCat = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/cat?arg={multihash}").build();
-        rootGet = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/get?arg={multihash}").build();
-        rootAdd = templateBuilder.withMethod("POST").withUriTemplate("/api/v0/add").build();
+        rootId = httpResourceGroup
+                .newTemplateBuilder("ipfs_id", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/id")
+                .build();
+
+        rootVersion = httpResourceGroup
+                .newTemplateBuilder("ipfs_version", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/version")
+                .build();
+
+        rootCommands = httpResourceGroup
+                .newTemplateBuilder("ipfs_commands", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/commands")
+                .build();
+
+        rootCat = oversizeHttpResourceGroup
+                .newTemplateBuilder("ipfs_cat", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/cat?arg={multihash}")
+                .build();
+
+        rootCatAggregated = httpResourceGroup
+                .newTemplateBuilder("ipfs_cat", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/cat?arg={multihash}")
+                .build();
+
+        rootGet = oversizeHttpResourceGroup
+                .newTemplateBuilder("ipfs_get", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/get?arg={multihash}")
+                .build();
+
+        rootAdd = httpResourceGroup
+                .newTemplateBuilder("ipfs_add", ByteBuf.class)
+                .withMethod("POST")
+                .withUriTemplate("/api/v0/add")
+                .build();
 
         // refs methods
-        rootRefs = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs?arg={multihash}").build();
-        rootRefsLocal = templateBuilder.withMethod("GET").withUriTemplate("/api/v0/refs/local").build();
+        rootRefs = httpResourceGroup
+                .newTemplateBuilder("ipfs_refs", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/refs?arg={multihash}")
+                .build();
+
+        rootRefsLocal = httpResourceGroup
+                .newTemplateBuilder("ipfs_local", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/refs/local")
+                .build();
 
         swarm = new SwarmRb(httpResourceGroup);
     }
@@ -93,12 +137,23 @@ public class IPFSRb implements IPFS {
 
     @Override
     public RibbonRequest<ByteBuf> cat(String multihash) {
-        return rootCat.requestBuilder().withRequestProperty("multihash", multihash).build();
+        return rootCat.requestBuilder()
+                .withRequestProperty("multihash", multihash)
+                .build();
+    }
+
+    @Override
+    public RibbonRequest<ByteBuf> catSingle(String multihash) {
+        return rootCatAggregated.requestBuilder()
+                .withRequestProperty("multihash", multihash)
+                .build();
     }
 
     @Override
     public RibbonRequest<ByteBuf> get(String multihash) {
-        return rootGet.requestBuilder().withRequestProperty("multihash", multihash).build();
+        return rootGet.requestBuilder()
+                .withRequestProperty("multihash", multihash)
+                .build();
     }
 
     @Override
@@ -127,7 +182,9 @@ public class IPFSRb implements IPFS {
 
     @Override
     public RibbonRequest<ByteBuf> refs(String multihash) {
-        return rootRefs.requestBuilder().withRequestProperty("multihash", multihash).build();
+        return rootRefs.requestBuilder()
+                .withRequestProperty("multihash", multihash)
+                .build();
     }
 
     @Override
