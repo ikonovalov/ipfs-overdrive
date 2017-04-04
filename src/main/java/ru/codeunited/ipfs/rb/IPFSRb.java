@@ -1,3 +1,20 @@
+/*
+ *   Copyright (C) 2017 Igor Konovalov
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ *
+ */
+
 package ru.codeunited.ipfs.rb;
 
 import com.netflix.ribbon.ClientOptions;
@@ -9,10 +26,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.codeunited.ipfs.Block;
-import ru.codeunited.ipfs.Dht;
-import ru.codeunited.ipfs.IPFS;
-import ru.codeunited.ipfs.Swarm;
+import ru.codeunited.ipfs.*;
 import rx.Observable;
 import rx.observables.StringObservable;
 
@@ -52,7 +66,8 @@ public class IPFSRb implements IPFS {
             rootGet,
             rootRefs,
             rootRefsLocal,
-            rootAdd;
+            rootAdd,
+            rootLs;
 
     IPFSRb(ClientOptions options) {
         RibbonResourceFactory ribbonResourceFactory = IPFSRibbonResourceFactory.normalResourceFactory();
@@ -104,6 +119,13 @@ public class IPFSRb implements IPFS {
                 .withUriTemplate("/api/v0/add")
                 .build();
 
+        rootLs = oversizeHttpResourceGroup
+                .newTemplateBuilder("ipfs_ls", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/ls?arg={multihash}")
+                .build();
+
+
         // refs methods
         rootRefs = httpResourceGroup
                 .newTemplateBuilder("ipfs_refs", ByteBuf.class)
@@ -123,6 +145,11 @@ public class IPFSRb implements IPFS {
     @Override
     public RibbonRequest<ByteBuf> id() {
         return rootId.requestBuilder().build();
+    }
+
+    @Override
+    public Bootstrap bootstrap() {
+        return null;
     }
 
     @Override
@@ -152,6 +179,13 @@ public class IPFSRb implements IPFS {
     @Override
     public RibbonRequest<ByteBuf> get(String multihash) {
         return rootGet.requestBuilder()
+                .withRequestProperty("multihash", multihash)
+                .build();
+    }
+
+    @Override
+    public RibbonRequest<ByteBuf> ls(String multihash) {
+        return rootLs.requestBuilder()
                 .withRequestProperty("multihash", multihash)
                 .build();
     }
@@ -203,7 +237,32 @@ public class IPFSRb implements IPFS {
     }
 
     @Override
+    public Objects objects() {
+        return null;
+    }
+
+    @Override
+    public Files files() {
+        return null;
+    }
+
+    @Override
+    public Dag dag() {
+        return null;
+    }
+
+    @Override
     public Dht dht() {
+        return null;
+    }
+
+    @Override
+    public Ping ping() {
+        return null;
+    }
+
+    @Override
+    public Config config() {
         return null;
     }
 }

@@ -35,6 +35,7 @@ import static rx.Observable.just;
 public class RootCommandsIT implements RibbonTestEnvironment {
 
     public static final String MULTHASH = "QmXcqycvhph5YHWSGKSEFzvcNxAoH54KBUP1zGtTwfSLJS";
+
     private Logger log = LoggerFactory.getLogger(RootCommandsIT.class);
 
     private int IPFS_PORT = DEFAULT_IPFS_API_PORT;
@@ -198,6 +199,16 @@ public class RootCommandsIT implements RibbonTestEnvironment {
         subscriber.getOnNextEvents().stream().findFirst().map(this::json).map(java.lang.Object::toString).ifPresent(log::info);
         subscriber.awaitTerminalEventAndUnsubscribeOnTimeout(5, SECONDS);
 
+    }
+
+    @Test
+    public void ls() {
+        final IPFS ipfs = configureLocal(IPFS_PORT);
+        final TestSubscriber<ByteBuf> subscriber = new TestSubscriber<>();
+        ipfs.ls(MULTHASH).observe().subscribe(subscriber);
+        subscriber.awaitValueCount(1, 2, SECONDS);
+        subscriber.awaitTerminalEvent(5, SECONDS);
+        assertThat(json(subscriber.getOnNextEvents().get(0))).containsKey("Objects");
     }
 
 }
