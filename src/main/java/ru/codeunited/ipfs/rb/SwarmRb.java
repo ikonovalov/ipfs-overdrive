@@ -28,18 +28,51 @@ import ru.codeunited.ipfs.Swarm;
  */
 public class SwarmRb implements Swarm {
 
-    private final HttpRequestTemplate<ByteBuf> peers;
+    private final HttpRequestTemplate<ByteBuf> peers, addr, connect, disconnect;
 
     SwarmRb(HttpResourceGroup httpResourceGroup) {
-
         peers = httpResourceGroup.newTemplateBuilder("ipfs_swarm_peers", ByteBuf.class)
                 .withMethod("GET")
                 .withUriTemplate("/api/v0/swarm/peers")
+                .build();
+
+        addr = httpResourceGroup.newTemplateBuilder("ipfs_swarm_addr", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/swarm/addr")
+                .build();
+
+        connect = httpResourceGroup.newTemplateBuilder("ipfs_swarm_connect", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/swarm/connect?arg={multihash}")
+                .build();
+
+        disconnect = httpResourceGroup.newTemplateBuilder("ipfs_swarm_disconnect", ByteBuf.class)
+                .withMethod("GET")
+                .withUriTemplate("/api/v0/swarm/disconnect?arg={multihash}")
                 .build();
     }
 
     @Override
     public RibbonRequest<ByteBuf> peers() {
         return peers.requestBuilder().build();
+    }
+
+    @Override
+    public RibbonRequest<ByteBuf> addrs() {
+        return addr.requestBuilder().build();
+    }
+
+    @Override
+    public RibbonRequest<ByteBuf> connect(String address) {
+        return connect.requestBuilder()
+                .withRequestProperty("multihash", address)
+                .build();
+    }
+
+    @Override
+    public RibbonRequest<ByteBuf> disconnect(String address) {
+        return disconnect.requestBuilder()
+                .withRequestProperty("multihash", address)
+                .build();
     }
 }

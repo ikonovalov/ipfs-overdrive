@@ -18,6 +18,8 @@
 package ru.codeunited.ipfs;
 
 import com.netflix.ribbon.RibbonRequest;
+import io.ipfs.multiaddr.MultiAddress;
+import io.ipfs.multihash.Multihash;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -26,5 +28,19 @@ import io.netty.buffer.ByteBuf;
 public interface Swarm {
 
     RibbonRequest<ByteBuf> peers();
+
+    RibbonRequest<ByteBuf> addrs();
+
+    RibbonRequest<ByteBuf> connect(String address);
+
+    RibbonRequest<ByteBuf> disconnect(String address);
+
+    default RibbonRequest<ByteBuf> connect(MultiAddress address) {
+        return connect(address.toString());
+    }
+
+    default RibbonRequest<ByteBuf> disconnect(MultiAddress address) {
+        return disconnect(address.toString());
+    }
 
 }
